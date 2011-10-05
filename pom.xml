@@ -11,7 +11,7 @@
 
   <artifactId>ooo-user</artifactId>
   <packaging>jar</packaging>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0</version>
   <name>ooo-user</name>
 
   <dependencies>
