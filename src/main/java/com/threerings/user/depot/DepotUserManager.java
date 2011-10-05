@@ -168,14 +168,11 @@ public class DepotUserManager
         }
 
         // register a cron job to prune the session table every hour
-        _pruner = new Interval() {
+        _pruner = new Interval(pruneQueue == null ? Interval.RUN_DIRECT : pruneQueue) {
             @Override public void expired () {
                 _repository.pruneSessions();
             }
         };
-        if (pruneQueue != null) {
-            _pruner.setRunQueue(pruneQueue);
-        }
         _pruner.schedule(SESSION_PRUNE_INTERVAL, true);
 
         // look up the access denied URL

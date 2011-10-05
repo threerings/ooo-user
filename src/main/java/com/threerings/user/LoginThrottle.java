@@ -22,10 +22,8 @@ public class LoginThrottle<K>
     {
         _maxLogins = maxLogins;
 
-        (new Interval() {
-            @Override
-            public void expired ()
-            {
+        (new Interval(Interval.RUN_DIRECT) {
+            @Override public void expired () {
                 synchronized(_recentLogins) {
                     _recentLogins.clear();
                 }
