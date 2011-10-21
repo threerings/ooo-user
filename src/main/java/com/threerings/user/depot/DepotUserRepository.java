@@ -607,6 +607,15 @@ public class DepotUserRepository extends DepotRepository
     }
 
     /**
+     * Updates the specified user's email address and marks their account as unvalidated.
+     */
+    public void changeEmailAndInvalidate (int userId, String email)
+    {
+        updatePartial(OOOUserRecord.getKey(userId), OOOUserRecord.EMAIL, email,
+                      OOOUserRecord.FLAGS, OOOUserRecord.FLAGS.bitAnd(~OOOUser.VALIDATED_FLAG));
+    }
+
+    /**
      * Updates the specified user's password (should already be encrypted).
      */
     public void changePassword (int userId, String password)
@@ -631,6 +640,24 @@ public class DepotUserRepository extends DepotRepository
         update(OOOUserRecord.fromUser(user), duser.mods.toArray(new ColumnExp[duser.mods.size()]));
         duser.mods = null;
         return true;
+    }
+
+    /**
+     * Adds the supplied flags to the specified user's flags.
+     */
+    public void addFlags (int userId, int addMask)
+    {
+        updatePartial(OOOUserRecord.getKey(userId),
+                      OOOUserRecord.FLAGS, OOOUserRecord.FLAGS.bitOr(addMask));
+    }
+
+    /**
+     * Clears the supplied flags from the specified user's flags.
+     */
+    public void clearFlags (int userId, int clearMask)
+    {
+        updatePartial(OOOUserRecord.getKey(userId),
+                      OOOUserRecord.FLAGS, OOOUserRecord.FLAGS.bitAnd(~clearMask));
     }
 
     /**
