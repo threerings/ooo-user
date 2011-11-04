@@ -929,19 +929,15 @@ public class DepotUserRepository extends DepotRepository
 
     /**
      * Creates a pending record for an account that has been created but not yet validated (which
-     * involves the user accessing a secret URL we send to them in an email message). If a record
-     * already exists for the supplied user, it will be reused and returned.
+     * involves the user accessing a secret URL we send to them in an email message).
      */
     public ValidateRecord createValidateRecord (int userId, boolean persist)
     {
-        // reuse an existing record if we have one
-        ValidateRecord rec = getValidateRecord(userId);
-        if (rec != null) {
-            return rec;
-        }
+        // delete any old validate mappings for the user
+        deleteAll(ValidateDepotRecord.class, new Where(ValidateDepotRecord.USER_ID.eq(userId)));
 
-        // otherwise create a new one and insert it into the database
-        rec = new ValidateRecord();
+        // create a new one and insert it into the database
+        ValidateRecord rec = new ValidateRecord();
         rec.secret = Long.toString(Math.abs((new Random()).nextLong()), 16);
         rec.userId = userId;
         rec.persist = persist;
