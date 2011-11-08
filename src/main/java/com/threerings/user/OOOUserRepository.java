@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import com.google.common.collect.Lists;
 
@@ -952,11 +951,7 @@ public class OOOUserRepository extends UserRepository
         update("delete from penders where userId = '" + userId + "'");
 
         // create a new one and insert it into the database
-        ValidateRecord rec = new ValidateRecord();
-        rec.secret = Long.toString(Math.abs((new Random()).nextLong()), 16);
-        rec.userId = userId;
-        rec.persist = persist;
-        rec.inserted = new Date(System.currentTimeMillis());
+        ValidateRecord rec = ValidateRecord.create(userId, persist);
         insert(_vtable, rec);
         return rec;
     }
