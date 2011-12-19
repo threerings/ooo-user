@@ -104,6 +104,13 @@ public class OOOUser extends User
      * Project X. */
     public static final byte PROJECTX_DEADBEAT = 16;
 
+    /** An access token indicating that the user is banned from Who. */
+    public static final byte WHO_BANNED = 17;
+
+    /** An access token indicating that the user has bounced a check or reversed a payment for
+     * Who. */
+    public static final byte WHO_DEADBEAT = 18;
+
     /** Billing status flags for a particular service. */
     public static final byte TRIAL_STATE = 0;
     public static final byte SUBSCRIBER_STATE = 1;
@@ -176,7 +183,8 @@ public class OOOUser extends User
         new OOOSite(EVERYTHING_SITE_ID, "everything", "notused"),
         new OOOSite(BITEME_SITE_ID, "biteme", "notused"),
         new OOOSite(DOWNTOWN_SITE_ID, "downtown", "notused"),
-        new OOOSite(PROJECTX_SITE_ID, "projectx", "spiralknights.com"));
+        new OOOSite(PROJECTX_SITE_ID, "projectx", "spiralknights.com"),
+        new OOOSite(WHO_SITE_ID, "who", "doctorwhowit.com"));
 
     /** The subscriber column name for Puzzle Pirates subscribers. Used by various repository
      * methods. */
@@ -222,6 +230,7 @@ public class OOOUser extends User
         case DOWNTOWN_SITE_ID: return APPS_BANNED;
         case FACEPIRATE_SITE_ID: return APPS_BANNED;
         case PROJECTX_SITE_ID: return PROJECTX_BANNED;
+        case WHO_SITE_ID: return WHO_BANNED;
         default: return (byte)0; // no other sites currently support banning
         }
     }
@@ -241,6 +250,7 @@ public class OOOUser extends User
         case DOWNTOWN_SITE_ID: return APPS_DEADBEAT;
         case FACEPIRATE_SITE_ID: return APPS_DEADBEAT;
         case PROJECTX_SITE_ID: return PROJECTX_DEADBEAT;
+        case WHO_SITE_ID: return WHO_DEADBEAT;
         default:
             log.warning("Requested deadbeat token for unsupported site", "site", site);
             return (byte)0;
