@@ -93,10 +93,6 @@ public class DepotUserRepository extends DepotRepository
     @Inject public DepotUserRepository (PersistenceContext ctx)
     {
         super(ctx);
-
-        // TEMP: 2009-06-02
-        _ctx.registerMigration(
-            OOOUserRecord.class, new SchemaMigration.Retype(3, OOOUserRecord.PASSWORD));
     }
 
     /**
