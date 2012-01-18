@@ -253,6 +253,14 @@ public class DepotUserRepository extends DepotRepository
     }
 
     /**
+     * Clears the given user's existing session, if found.
+     */
+    public void clearSession (int userId)
+    {
+        from(SessionRecord._R).where(SessionRecord.USER_ID, userId).delete();
+    }
+
+    /**
      * Validates that the supplied session key is still valid and if so, refreshes it for the
      * specified number of days.
      *
