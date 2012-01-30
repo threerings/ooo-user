@@ -17,7 +17,9 @@
 
   <scm>
     <connection>scm:git:git://github.com/threerings/ooo-user.git</connection>
-    <developerConnection>ssh://src1.earth.threerings.net/export/git/repos/ooo-user.git</developerConnection>
+    <developerConnection>
+      scm:git:ssh://src1.earth.threerings.net/export/git/repos/ooo-user.git
+    </developerConnection>
     <url>http://github.com/threerings/ooo-user</url>
   </scm>
 
