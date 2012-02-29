@@ -655,6 +655,19 @@ public class DepotUserRepository extends DepotRepository
     }
 
     /**
+     * Adds the supplied flags to the specified user's flags.  This version is slow, so use
+     * sparingly.
+     */
+    public void addFlags (String username, int addMask)
+    {
+        OOOUserRecord user = load(OOOUserRecord.class,
+                new Where(StringFuncs.lower(OOOUserRecord.USERNAME).eq(username.toLowerCase())));
+        if (user != null) {
+            addFlags(user.userId, addMask);
+        }
+    }
+
+    /**
      * Clears the supplied flags from the specified user's flags.
      */
     public void clearFlags (int userId, int clearMask)
