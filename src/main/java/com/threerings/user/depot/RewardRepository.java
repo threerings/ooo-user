@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: RewardRepository.java 3547 2011-03-03 04:40:51Z jamie $
 
 package com.threerings.user.depot;
 
@@ -50,6 +50,12 @@ public class RewardRepository extends DepotRepository
     public RewardRepository (ConnectionProvider provider)
     {
         super(new PersistenceContext(OOOUserRepository.USER_REPOSITORY_IDENT, provider, null));
+    }
+
+    @Override // TEMP: just make it public
+    public void registerMigration (com.samskivert.depot.DataMigration mig)
+    {
+        super.registerMigration(mig);
     }
 
     /**
@@ -197,6 +203,16 @@ public class RewardRepository extends DepotRepository
     }
 
     /**
+     * Return just the ids of all activated rewards for the specified account.
+     */
+    public List<Integer> loadActivatedRewardIds (String account)
+    {
+        return from(RewardRecord.class)
+            .where(RewardRecord.ACCOUNT.eq(account))
+            .select(RewardRecord.REWARD_ID);
+    }
+
+    /**
      * Returns all <code>RewardRecord</code>s that match the given account name and whose eligible
      * date is in the past. The returned list will be sorted by <code>rewardId</code>.
      */
@@ -205,6 +221,16 @@ public class RewardRepository extends DepotRepository
         return findAll(RewardRecord.class,
                 new Where(RewardRecord.ACCOUNT.eq(account)),
                 OrderBy.ascending(RewardRecord.REWARD_ID));
+    }
+
+    /**
+     * Load the redeemable reward records.
+     */
+    public List<RewardRecord> loadRedeemableRewards (String account)
+    {
+        return from(RewardRecord.class)
+            .where(RewardRecord.ACCOUNT.eq(account), RewardRecord.REDEEMER_IDENT.isNull())
+            .select();
     }
 
     /**
