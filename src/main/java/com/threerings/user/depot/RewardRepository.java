@@ -52,12 +52,6 @@ public class RewardRepository extends DepotRepository
         super(new PersistenceContext(OOOUserRepository.USER_REPOSITORY_IDENT, provider, null));
     }
 
-    @Override // TEMP: just make it public
-    public void registerMigration (com.samskivert.depot.DataMigration mig)
-    {
-        super.registerMigration(mig);
-    }
-
     /**
      * Creates a new RewardInfo record in the database.  <code>info</code> should have the
      * <code>description</code>, <code>data</code> and <code>expiration</code> filled in.
