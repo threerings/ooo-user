@@ -111,6 +111,9 @@ public class OOOUser extends User
      * Who. */
     public static final byte WHO_DEADBEAT = 18;
 
+    /** An access token indicating that this user is junior customer support personnel. */
+    public static final byte JR_SUPPORT = 19;
+
     /** Billing status flags for a particular service. */
     public static final byte TRIAL_STATE = 0;
     public static final byte SUBSCRIBER_STATE = 1;
