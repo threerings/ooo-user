@@ -145,8 +145,8 @@ public class DepotUserRepository extends DepotRepository
     public Iterable<OOOUser> lookupUsersByEmail (String email)
     {
         List<OOOUser> users = Lists.newArrayList();
-        for (OOOUserRecord record : findAll(OOOUserRecord.class,
-                    new Where(OOOUserRecord.EMAIL, email))) {
+        Where where = new Where(StringFuncs.lower(OOOUserRecord.EMAIL).eq(email.toLowerCase()));
+        for (OOOUserRecord record : findAll(OOOUserRecord.class, where)) {
             users.add(toUser(record));
         }
         return users;
@@ -289,7 +289,7 @@ public class DepotUserRepository extends DepotRepository
     public String[] getUsernames (String email)
     {
         List<String> usernames = Lists.newArrayList();
-        Where where = new Where(OOOUserRecord.EMAIL, email);
+        Where where = new Where(StringFuncs.lower(OOOUserRecord.EMAIL).eq(email.toLowerCase()));
         for (OOOUserRecord record : findAll(OOOUserRecord.class, where)) {
             usernames.add(record.username);
         }
