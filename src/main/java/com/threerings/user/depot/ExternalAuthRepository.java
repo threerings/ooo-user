@@ -94,6 +94,22 @@ public class ExternalAuthRepository extends DepotRepository
     }
 
     /**
+     * Loads a mapping of (ooouser id -> exid) for all members in the supplied list that are found
+     * in the database.
+     */
+    public Map<Integer, String> loadExternalIds (ExternalAuther auther, Collection<Integer> oooIds)
+    {
+        Preconditions.checkNotNull(auther);
+        Map<Integer, String> ids = Maps.newHashMap();
+        for (ExternalAuthRecord exrec : from(ExternalAuthRecord.class).where(
+                ExternalAuthRecord.AUTHER.eq(auther),
+                ExternalAuthRecord.USER_ID.in(oooIds)).select()) {
+            ids.put(exrec.userId, exrec.externalId);
+        }
+        return ids;
+    }
+
+    /**
      * Creates a mapping for the specified user to the supplied external credentials.
      */
     public void mapExternalAccount (int userId, ExternalAuther auther, String externalId,
