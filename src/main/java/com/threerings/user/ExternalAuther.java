@@ -26,7 +26,8 @@ public enum ExternalAuther
     STEAM(5, "steampowered.com"),
     SEGA_PASS(6, "sega.com"),
     KONGREGATE(7, "kongregate.com"),
-    ARMORGAMES(8, "armorgames.com");
+    ARMORGAMES(8, "armorgames.com"),
+    NEWGROUNDS(9, "newgrounds.com");
 
     /**
      * Creates a fake email address given the supplied external user id.
