@@ -439,21 +439,10 @@ public class OOOUser extends User
      */
     public boolean setBillingStatus (int site, byte status)
     {
-        switch (site) {
-        case METASOY_SITE_ID:
-            // we maintain a separate OOOUSER installation for msoy and thus rather than adding
-            // another column to maintain our subscriber status for msoy, we just reuse yohoho's
-        case PUZZLEPIRATES_SITE_ID:
-        case YPPFAMILY_SITE_ID:
-            if (yohoho != status) {
-                yohoho = status;
-                setModified("yohoho");
-                return true;
-            }
-            break;
-        default:
-            throw new IllegalArgumentException(
-                "Tried to set billing status for unknown site [site=" + site + "].");
+        if (yohoho != status) {
+            yohoho = status;
+            setModified("yohoho");
+            return true;
         }
         return false;
     }
@@ -464,13 +453,10 @@ public class OOOUser extends User
     public byte getBillingStatus (int site)
     {
         switch (site) {
-        case METASOY_SITE_ID: // see setBillingStatus
-        case PUZZLEPIRATES_SITE_ID:
-            return yohoho;
         case YPPFAMILY_SITE_ID:
             return isFamilySubscriber() ? SUBSCRIBER_STATE : yohoho;
         default:
-            return TRIAL_STATE;
+            return yohoho;
         }
     }
 
