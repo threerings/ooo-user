@@ -41,7 +41,7 @@ public class ExternalAuthRecord extends PersistentRecord
 
     /** The most recent session key provided by the external site, for use in making API requests
      * to said site based on our most recently active session. */
-    @Column(nullable=true)
+    @Column(nullable=true, length=1024)
     public String sessionKey;
 
     // AUTO-GENERATED: METHODS START
