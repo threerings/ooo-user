@@ -19,6 +19,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.samskivert.depot.CountRecord;
 import com.samskivert.depot.DepotRepository;
 import com.samskivert.depot.DuplicateKeyException;
 import com.samskivert.depot.Funcs;
@@ -80,14 +81,6 @@ public class DepotUserRepository extends DepotRepository
 
         /** The user has bounced a check or reversed a payment. */
         DEADBEAT;
-    }
-
-    @Computed @Entity
-    public static class CountRecord extends PersistentRecord
-    {
-        /** The computed count. */
-        @Computed(fieldDefinition="count(*)")
-        public int count;
     }
 
     @Inject public DepotUserRepository (PersistenceContext ctx)
