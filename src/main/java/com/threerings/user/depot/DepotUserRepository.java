@@ -633,7 +633,8 @@ public class DepotUserRepository extends DepotRepository
         if (duser.mods == null) {
             return false;
         }
-        update(OOOUserRecord.fromUser(user), duser.mods.toArray(new ColumnExp[duser.mods.size()]));
+        update(OOOUserRecord.fromUser(user),
+               duser.mods.toArray(new ColumnExp<?>[duser.mods.size()]));
         duser.mods = null;
         return true;
     }
