@@ -57,8 +57,8 @@ public class UserDataUtil
      * Returns the password in the supplied request, or throws an
      * informative exception if the password is absent or invalid.
      *
-     * @optional If true, null may be returned and if the parameter is absent no exception will be
-     *           thrown. If the parameter is present it is still checked for validity.
+     * @param optional If true, null may be returned and if the parameter is absent no exception
+     *           will be thrown. If the parameter is present it is still checked for validity.
      */
     public static String getPassword (
         HttpServletRequest req, String page, String ptype, boolean optional)
