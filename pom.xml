@@ -15,13 +15,6 @@
   <name>ooo-user</name>
   <description>A bunch of user management code used by OOO.</description>
 
-  <scm>
-    <connection>scm:git:git://github.com/threerings/ooo-user.git</connection>
-    <developerConnection>
-      scm:git:ssh://src1.earth.threerings.net/export/git/repos/ooo-user.git
-    </developerConnection>
-    <url>http://github.com/threerings/ooo-user</url>
-  </scm>
 
   <licenses>
     <license>
@@ -38,6 +31,14 @@
       <email>mdb@samskivert.com</email>
     </developer>
   </developers>
+
+  <scm>
+    <connection>scm:git:git://github.com/threerings/ooo-user.git</connection>
+    <developerConnection>
+      scm:git:ssh://src1.earth.threerings.net/export/git/repos/ooo-user.git
+    </developerConnection>
+    <url>http://github.com/threerings/ooo-user</url>
+  </scm>
 
   <dependencies>
     <dependency>
