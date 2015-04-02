@@ -5,9 +5,8 @@ package com.threerings.user.tools;
 
 import java.util.List;
 
+import com.samskivert.depot.StaticConnectionProvider;
 import com.samskivert.util.Config;
-
-import com.samskivert.jdbc.StaticConnectionProvider;
 
 import com.threerings.user.AccountAction;
 import com.threerings.user.depot.AccountActionRepository;

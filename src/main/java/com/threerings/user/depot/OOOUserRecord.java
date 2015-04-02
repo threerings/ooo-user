@@ -8,6 +8,7 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 
+import com.samskivert.depot.IndexDesc;
 import com.samskivert.depot.Key;
 import com.samskivert.depot.PersistentRecord;
 import com.samskivert.depot.StringFuncs;
@@ -20,8 +21,6 @@ import com.samskivert.depot.annotation.Index;
 import com.samskivert.depot.clause.OrderBy.Order;
 import com.samskivert.depot.expression.ColumnExp;
 import com.samskivert.depot.expression.SQLExpression;
-
-import com.samskivert.util.Tuple;
 
 import com.threerings.user.OOOUser;
 
@@ -107,18 +106,17 @@ public class OOOUserRecord extends PersistentRecord
     /**
      * Defines the index on {@link #username} converted to lower case.
      */
-    public static Tuple<SQLExpression<?>, Order> ixLowerUsername ()
+    public static IndexDesc ixLowerUsername ()
     {
-        return new Tuple<SQLExpression<?>, Order>(
-                StringFuncs.lower(OOOUserRecord.USERNAME), Order.ASC);
+        return new IndexDesc(StringFuncs.lower(OOOUserRecord.USERNAME), Order.ASC);
     }
 
     /**
      * Defines the index on {@link #email} converted to lower case.
      */
-    public static Tuple<SQLExpression<?>, Order> ixLowerEmail ()
+    public static IndexDesc ixLowerEmail ()
     {
-        return new Tuple<SQLExpression<?>, Order>(StringFuncs.lower(OOOUserRecord.EMAIL), Order.ASC);
+        return new IndexDesc(StringFuncs.lower(OOOUserRecord.EMAIL), Order.ASC);
     }
 
     /**

@@ -12,9 +12,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.common.collect.Maps;
 
+import com.samskivert.depot.ConnectionProvider;
 import com.samskivert.depot.DatabaseException;
 import com.samskivert.depot.PersistenceContext;
-import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.servlet.RedirectException;
 import com.samskivert.servlet.user.AuthenticationFailedException;
 import com.samskivert.servlet.user.Authenticator;
