@@ -10,7 +10,7 @@
   <groupId>com.threerings</groupId>
   <artifactId>ooo-user</artifactId>
   <packaging>jar</packaging>
-  <version>1.4.5</version>
+  <version>1.5-SNAPSHOT</version>
 
   <name>ooo-user</name>
   <description>A bunch of user management code used by OOO.</description>
