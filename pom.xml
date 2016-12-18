@@ -33,6 +33,7 @@
 
   <scm>
     <connection>scm:git:git://github.com/threerings/ooo-user.git</connection>
+    <developerConnection>scm:git:git@github.com:threerings/ooo-user.git</developerConnection>
     <url>https://github.com/threerings/ooo-user</url>
   </scm>
 
