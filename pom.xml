@@ -15,7 +15,6 @@
   <name>ooo-user</name>
   <description>A bunch of user management code used by OOO.</description>
 
-
   <licenses>
     <license>
       <name>The (New) BSD License</name>
@@ -34,10 +33,7 @@
 
   <scm>
     <connection>scm:git:git://github.com/threerings/ooo-user.git</connection>
-    <developerConnection>
-      scm:git:ssh://src1.earth.threerings.net/export/git/repos/ooo-user.git
-    </developerConnection>
-    <url>http://github.com/threerings/ooo-user</url>
+    <url>https://github.com/threerings/ooo-user</url>
   </scm>
 
   <dependencies>
