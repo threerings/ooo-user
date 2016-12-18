@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.sonatype.oss</groupId>
     <artifactId>oss-parent</artifactId>
-    <version>7</version>
+    <version>9</version>
   </parent>
 
   <groupId>com.threerings</groupId>
@@ -36,6 +36,10 @@
     <url>https://github.com/threerings/ooo-user</url>
   </scm>
 
+  <prerequisites>
+    <maven>3.3.0</maven>
+  </prerequisites>
+
   <dependencies>
     <dependency>
       <groupId>com.samskivert</groupId>
@@ -65,21 +69,24 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.3.2</version>
+        <version>3.6.0</version>
         <configuration>
           <source>1.7</source>
           <target>1.7</target>
           <fork>true</fork>
           <showDeprecation>true</showDeprecation>
           <showWarnings>true</showWarnings>
-          <!-- yes, those quoted spaces are a workaround sanctioned by the Maven idiocracy -->
-          <compilerArgument>-Xlint" "-Xlint:-serial" "-Xlint:-path</compilerArgument>
+          <compilerArgs>
+            <arg>-Xlint</arg>
+            <arg>-Xlint:-serial</arg>
+            <arg>-Xlint:-path</arg>
+          </compilerArgs>
         </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
-        <version>2.4.3</version>
+        <version>3.0.1</version>
         <configuration>
           <encoding>UTF-8</encoding>
         </configuration>
@@ -87,7 +94,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.7</version>
+        <version>2.10.4</version>
         <configuration>
           <quiet>true</quiet>
           <show>public</show>
@@ -101,7 +108,7 @@
       <plugin>
         <groupId>org.sonatype.plugins</groupId>
         <artifactId>nexus-staging-maven-plugin</artifactId>
-        <version>1.6.6</version>
+        <version>1.6.7</version>
         <extensions>true</extensions>
         <inherited>false</inherited>
         <configuration>
@@ -124,7 +131,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.1</version>
+            <version>1.6</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>
