@@ -132,8 +132,8 @@ public class ConversionRepository extends JORARepository
     }
 
     /**
-     * Returns all of our subscription info.  Date -> IntIntMap,
-     * IntIntMap: SiteId -> Subscribers.  SiteId 0 is a total of all sites.
+     * Returns all of our subscription info. {@code Date -> SiteId -> Subscribers}. SiteId 0 is a
+     * total of all sites.
      */
     public Map<Date, IntIntMap> getSubscriptionInfo ()
     {

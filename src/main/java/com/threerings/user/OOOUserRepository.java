@@ -596,7 +596,7 @@ public class OOOUserRepository extends UserRepository
     }
 
     /**
-     * Return a mapping of affliate ids -> count of users who registered within the specified date
+     * Return a mapping of affliate ids to count of users who registered within the specified date
      * range (inclusive).
      */
     public IntIntMap getAffiliateRegistrationCount (Date start, Date end)
@@ -607,7 +607,7 @@ public class OOOUserRepository extends UserRepository
     }
 
     /**
-     * Return a mapping of affliate ids -> currently or once subscribed users who registered within
+     * Return a mapping of affliate ids to currently or once subscribed users who registered within
      * the specified date range (inclusive).
      *
      * @param column the column that denotes subscription for the desired site (currently only
@@ -622,7 +622,7 @@ public class OOOUserRepository extends UserRepository
     }
 
     /**
-     * Return a mapping of affliate ids -> users that have purchased coins and who registered
+     * Return a mapping of affliate ids to users that have purchased coins and who registered
      * within the specified date range (inclusive).
      */
     public IntIntMap getAffiliateCoinBuyerCount (Date start, Date end)
@@ -634,7 +634,7 @@ public class OOOUserRepository extends UserRepository
     }
 
     /**
-     * Return a mapping of affliate ids -> users that have purchased time and who registered within
+     * Return a mapping of affliate ids to users that have purchased time and who registered within
      * the specified date range (inclusive).
      */
     public IntIntMap getAffiliateTimeBuyerCount (Date start, Date end)
@@ -683,9 +683,9 @@ public class OOOUserRepository extends UserRepository
     }
 
     /**
-     * Get the number of created user accounts in the specified date range.  Returns the count by
-     * day using a LinkedHashMap (Date => Count) to preserve the date ordering returned by the
-     * database.
+     * Get the number of created user accounts in the specified date range. Returns the count by
+     * day using a LinkedHashMap ({@code Date => Count}) to preserve the date ordering returned by
+     * the database.
      */
     public Map<Date,Integer> getAffiliateRegistrationCounts (Date start, Date end, int siteId)
         throws PersistenceException
@@ -695,9 +695,9 @@ public class OOOUserRepository extends UserRepository
     }
 
     /**
-     * Get the number of subscriber user accounts created in the specified date range.  Returns the
-     * count by day using a LinkedHashMap (Date => Count) to preserve the date ordering returned by
-     * the database.
+     * Get the number of subscriber user accounts created in the specified date range. Returns the
+     * count by day using a LinkedHashMap ({@code Date => Count}) to preserve the date ordering
+     * returned by the database.
      *
      * @param siteId (aka affiliateId) the affiliate site to look up.
      * @param column the column that denotes subscription for the desired site (currently only
@@ -713,8 +713,8 @@ public class OOOUserRepository extends UserRepository
     }
 
     /**
-     * Get the number of coin-buying user accounts created in the specified date range.  Returns
-     * the count by day using a LinkedHashMap (Date => Count) to preserve the date ordering
+     * Get the number of coin-buying user accounts created in the specified date range. Returns the
+     * count by day using a LinkedHashMap ({@code Date => Count}) to preserve the date ordering
      * returned by the database.
      */
     public Map<Date, Integer> getAffiliateCoinBuyerCounts (Date start, Date end, int siteId)
@@ -728,8 +728,8 @@ public class OOOUserRepository extends UserRepository
     /**
      * Get the number of coin-buying user accounts created in the specified date range.
      *
-     * @return the count by day using a LinkedHashMap (Date => Count) to preserve the date ordering
-     * returned by the database.
+     * @return the count by day using a LinkedHashMap ({@code Date => Count}) to preserve the date
+     * ordering returned by the database.
      */
     public Map<Date, Integer> getAffiliateTimeBuyerCounts (Date start, Date end, int siteId)
         throws PersistenceException
@@ -1455,7 +1455,7 @@ public class OOOUserRepository extends UserRepository
     }
 
     /**
-     * Add the userId -> machIdent mapping to the database.
+     * Add the {@code userId -> machIdent} mapping to the database.
      */
     public void addUserIdent (int userId, String machIdent)
         throws PersistenceException

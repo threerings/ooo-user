@@ -36,7 +36,6 @@ public class RepositoryManager {
 
     /**
      * Initialize a new set of repositories.
-     * @param config
      */
     public RepositoryManager (Config config)
         throws PersistenceException

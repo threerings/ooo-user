@@ -78,8 +78,8 @@ public class ExternalAuthRepository extends DepotRepository
     }
 
     /**
-     * Loads a mapping of (exid -> ooouser id) for all members in the supplied list that are found
-     * in the database.
+     * Loads a mapping of ({@code exid -> ooouser id}) for all members in the supplied list that
+     * are found in the database.
      */
     public Map<String, Integer> loadUserIds (ExternalAuther auther, Collection<String> externalIds)
     {
@@ -94,8 +94,8 @@ public class ExternalAuthRepository extends DepotRepository
     }
 
     /**
-     * Loads a mapping of (ooouser id -> exid) for all members in the supplied list that are found
-     * in the database.
+     * Loads a mapping of ({@code ooouser id -> exid}) for all members in the supplied list that
+     * are found in the database.
      */
     public Map<Integer, String> loadExternalIds (ExternalAuther auther, Collection<Integer> oooIds)
     {

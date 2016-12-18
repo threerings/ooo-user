@@ -379,7 +379,7 @@ public class DepotUserRepository extends DepotRepository
     }
 
     /**
-     * Add the userId -> machIdent mapping to the database.
+     * Add the {@code userId -> machIdent} mapping to the database.
      */
     public void addUserIdent (int userId, String machIdent)
     {
