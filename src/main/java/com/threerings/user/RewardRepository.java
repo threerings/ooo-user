@@ -398,10 +398,6 @@ public class RewardRepository extends JORARepository
         };
         JDBCUtil.createTableIfMissing(conn, "REWARD_INFO", rewardInfoTable, "");
 
-        // TEMP: (2006-12-22) add COUPON_CODE column
-        JDBCUtil.addColumn(conn, "REWARD_INFO", "COUPON_CODE", "VARCHAR(255)", "DESCRIPTION");
-        // END TEMP
-
         String[] rewardsTable = {
             "REWARD_ID INTEGER NOT NULL",
             "ACCOUNT VARCHAR(255)",
@@ -412,17 +408,6 @@ public class RewardRepository extends JORARepository
             "INDEX (REDEEMER_IDENT)"
         };
         JDBCUtil.createTableIfMissing(conn, "REWARD_RECORDS", rewardsTable, "");
-
-        // Add a parameter column. This allows a particular reward to be granted more than once, and
-        // pass specific details to the reward handler.
-        if (!JDBCUtil.tableContainsColumn(conn, "REWARD_RECORDS", "PARAM")) {
-            // unfortunately, we need to recreate the primary key
-            JDBCUtil.dropPrimaryKey(conn, "REWARD_RECORDS");
-
-            // add generic parameter column, and include
-            JDBCUtil.addColumn(conn, "REWARD_RECORDS", "PARAM", "VARCHAR(255), " +
-                "ADD PRIMARY KEY (REWARD_ID, ACCOUNT, PARAM)", null);
-        }
     }
 
     @Override
