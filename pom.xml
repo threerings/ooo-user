@@ -9,6 +9,10 @@
 
   <name>ooo-user</name>
   <description>A bunch of user management code used by OOO.</description>
+  <url>https://github.com/threerings/ooo-user/</url>
+  <issueManagement>
+    <url>https://github.com/threerings/ooo-user/issues</url>
+  </issueManagement>
 
   <licenses>
     <license>
@@ -30,6 +34,7 @@
     <connection>scm:git:git://github.com/threerings/ooo-user.git</connection>
     <developerConnection>scm:git:git@github.com:threerings/ooo-user.git</developerConnection>
     <url>https://github.com/threerings/ooo-user</url>
+    <tag>HEAD</tag>
   </scm>
 
   <prerequisites>
