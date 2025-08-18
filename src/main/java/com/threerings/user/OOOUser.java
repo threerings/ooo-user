@@ -349,7 +349,7 @@ public class OOOUser extends User
     }
 
     /**
-     * Sets the user's password and wipes the plaintext password from memory.
+     * Sets the user's password from a plaintext string.
      *
      * @param password the password to set
      */
