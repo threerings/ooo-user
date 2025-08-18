@@ -8,11 +8,10 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import com.google.common.collect.ImmutableList;
-
 import com.samskivert.jdbc.jora.FieldMask;
+import com.samskivert.servlet.user.Password;
 import com.samskivert.servlet.user.User;
 import com.samskivert.util.ArrayIntSet;
-
 import static com.threerings.user.Log.log;
 
 /**
@@ -339,6 +338,51 @@ public class OOOUser extends User
             }
             setModified("tokens");
         }
+    }
+
+    @Override
+    public void setPassword(String password) {
+        // we might want to consider disabling this in favor of directly using char[]
+        // because char[] can be wiped when it's done being used for security,
+        // but for now, we'll keep it as is to not break existing functionality
+        setPassword(password.toCharArray());
+    }
+
+    /**
+     * Sets the user's password and wipes the plaintext password from memory.
+     *
+     * @param password the password to set
+     */
+    public void setPassword(char[] password) {
+        String encrypted = Crypto.hashPassword(password);
+        setPassword(Password.makeFromCrypto(encrypted));
+    }
+
+    /**
+     * Checks the user's password against the provided plaintext password.
+     *
+     * @param password the plaintext password to check
+     * @return true if the password is correct, false otherwise
+     */
+    public boolean checkPassword(char[] password) {
+        return Crypto.verifyPassword(password, this.password);
+    }
+
+    /**
+     * Checks whether the user's password is hashed using Argon2.
+     */
+    public boolean isArgon2Hashed() {
+        return Crypto.isArgon2Hashed(password);
+    }
+
+    /**
+     * Checks if the user's password needs to be rehashed based on the current
+     * parameters.
+     *
+     * @return true if the password needs to be rehashed, false otherwise
+     */
+    public boolean needsRehash() {
+        return !isArgon2Hashed() || Crypto.needsRehash(this.password);
     }
 
     /**
