@@ -1589,7 +1589,7 @@ public class OOOUserRepository extends UserRepository
         String[] usersSchema = {
             "userId INTEGER(10) PRIMARY KEY NOT NULL AUTO_INCREMENT",
             "username VARCHAR(255) NOT NULL",
-            "password VARCHAR(32) NOT NULL",
+            "password VARCHAR(128) NOT NULL",
             "email VARCHAR(128) NOT NULL",
             "realname VARCHAR(128) NOT NULL",
             "created DATE NOT NULL",
@@ -1604,6 +1604,12 @@ public class OOOUserRepository extends UserRepository
             "INDEX email_index (email)",
         };
         JDBCUtil.createTableIfMissing(conn, "users", usersSchema, "");
+
+        // give the password a longer length to allow more secure hashing
+        int passwordLength = JDBCUtil.getColumnSize(conn, "users", "password");
+        if (passwordLength < 128) {
+            JDBCUtil.changeColumn(conn, "users", "password", "password VARCHAR(128) NOT NULL");
+        }
 
         String[] historySchema = {
             "userId INTEGER(10) PRIMARY KEY NOT NULL",
