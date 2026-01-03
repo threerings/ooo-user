@@ -5,7 +5,7 @@ package com.threerings.user;
 
 import java.util.Map;
 import java.util.Properties;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.google.common.collect.Maps;
 

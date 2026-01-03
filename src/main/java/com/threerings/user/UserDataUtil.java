@@ -3,7 +3,7 @@
 
 package com.threerings.user;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.samskivert.net.MailUtil;
 import com.samskivert.servlet.util.DataValidationException;
