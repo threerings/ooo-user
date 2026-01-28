@@ -15,9 +15,14 @@ import com.samskivert.jdbc.ConnectionProvider;
 
 import com.samskivert.servlet.RedirectException;
 
+import com.samskivert.servlet.user.AuthenticationFailedException;
+import com.samskivert.servlet.user.Authenticator;
+import com.samskivert.servlet.user.InvalidPasswordException;
+import com.samskivert.servlet.user.Password;
 import com.samskivert.servlet.user.User;
 import com.samskivert.servlet.user.UserManager;
 import com.samskivert.servlet.user.UserRepository;
+import com.samskivert.servlet.user.UserUtil;
 
 import static com.threerings.user.Log.log;
 
@@ -26,6 +31,22 @@ import static com.threerings.user.Log.log;
  */
 public class OOOUserManager extends UserManager
 {
+    /** Checks passwords using {@link OOOUser#checkPassword}. */
+    public static class OOOAuthenticator implements Authenticator {
+        public void authenticateUser (User user, String username, Password password)
+            throws AuthenticationFailedException
+        {
+            OOOUser ouser = (OOOUser)user;
+            log.info("authenticateUser", "user", user, "password", password.getCleartext());
+            char[] passchars = password.getCleartext().toCharArray();
+            boolean matched = ouser.isArgon2Hashed() ?
+                ouser.checkPassword(passchars) : user.passwordsMatch(password);
+            if (!matched) {
+                throw new InvalidPasswordException("error.invalid_password");
+            }
+        }
+    }
+
     /**
      * Creates our OOO User manager and prepares it for operation.
      */
@@ -131,7 +152,7 @@ public class OOOUserManager extends UserManager
         }
         return null;
     }
-    
+
     /**
      * Extends the standard {@link #requireUser(HttpServletRequest)} with
      * the additional requirement that the user hold the specified token.
