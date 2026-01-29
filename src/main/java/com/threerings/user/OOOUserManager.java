@@ -37,7 +37,6 @@ public class OOOUserManager extends UserManager
             throws AuthenticationFailedException
         {
             OOOUser ouser = (OOOUser)user;
-            log.info("authenticateUser", "user", user, "password", password.getCleartext());
             char[] passchars = password.getCleartext().toCharArray();
             boolean matched = ouser.isArgon2Hashed() ?
                 ouser.checkPassword(passchars) : user.passwordsMatch(password);
