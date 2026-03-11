@@ -3,7 +3,7 @@
 
 package com.threerings.user;
 
-import com.samskivert.util.ByteEnum;
+import com.samskivert.depot.util.ByteEnum;
 import com.samskivert.util.StringUtil;
 
 /**
