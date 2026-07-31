@@ -889,13 +889,15 @@ public class OOOUserRepository extends UserRepository
             public List<DetailedUser> invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
             {
-                String query = "where users.userId = AUXDATA.USER_ID ";
+                // use a left join so users with no AUXDATA row (e.g. accounts created via
+                // authosaurus, which does not populate AUXDATA) are still included
+                String query = "left join AUXDATA on userId = USER_ID ";
                 if (filter) {
-                    query += "AND users.flags != 0 AND users.tokens = '' ";
+                    query += "where users.flags != 0 AND users.tokens = '' ";
                 }
                 query += "ORDER BY userId DESC LIMIT " + start + ", " + count;
                 // look up the user
-                return _dtable.join(conn, "AUXDATA", query).toArrayList();
+                return _dtable.select(conn, query).toArrayList();
             }
         });
     }
