@@ -885,6 +885,28 @@ public class OOOUserRepository extends UserRepository
     public List<DetailedUser> getDetailRecords (final int start, final int count, final boolean filter)
         throws PersistenceException
     {
+        return getDetailRecords(start, count, filter, null, false);
+    }
+
+    /**
+     * Returns a list of detail records for the users registered in our database, starting with the
+     * specified record number and containing at most <code>count</code> elements, optionally
+     * restricted to (or excluding) usernames ending with a particular suffix. This is useful for
+     * distinguishing accounts created via a thirdparty login (which conventionally have a suffix
+     * appended to their username) from directly registered accounts.
+     *
+     * @param filter if true, unvalidated users and users that are already testers or the like are
+     * filtered out.
+     * @param usernameSuffix if non-null, only usernames ending with this suffix are matched (or,
+     * if <code>excludeSuffix</code> is true, only usernames <em>not</em> ending with this suffix).
+     * @param excludeSuffix if true, invert the <code>usernameSuffix</code> match; ignored if
+     * <code>usernameSuffix</code> is null.
+     */
+    public List<DetailedUser> getDetailRecords (
+        final int start, final int count, final boolean filter, final String usernameSuffix,
+        final boolean excludeSuffix)
+        throws PersistenceException
+    {
         return execute(new Operation<List<DetailedUser>> () {
             public List<DetailedUser> invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
@@ -892,8 +914,17 @@ public class OOOUserRepository extends UserRepository
                 // use a left join so users with no AUXDATA row (e.g. accounts created via
                 // authosaurus, which does not populate AUXDATA) are still included
                 String query = "left join AUXDATA on userId = USER_ID ";
+                List<String> clauses = new ArrayList<String>();
                 if (filter) {
-                    query += "where users.flags != 0 AND users.tokens = '' ";
+                    clauses.add("users.flags != 0 AND users.tokens = ''");
+                }
+                if (usernameSuffix != null) {
+                    String escaped = usernameSuffix.replace("'", "''");
+                    clauses.add("username " + (excludeSuffix ? "NOT LIKE" : "LIKE") +
+                        " '%" + escaped + "'");
+                }
+                if (!clauses.isEmpty()) {
+                    query += "where " + StringUtil.join(clauses.toArray(new String[0]), " AND ") + " ";
                 }
                 query += "ORDER BY userId DESC LIMIT " + start + ", " + count;
                 // look up the user
