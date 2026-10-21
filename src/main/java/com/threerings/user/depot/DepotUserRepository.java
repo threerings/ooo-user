@@ -89,6 +89,16 @@ public class DepotUserRepository extends DepotRepository
     }
 
     /**
+     * Configure the maximum free accounts that we'll permit users to create, or use
+     * a negative number to disable the check.
+     */
+    public DepotUserRepository setMaxFreeAccounts (int max)
+    {
+        _maxFreeAccounts = max;
+        return this;
+    }
+
+    /**
      * Looks up a user by userid.
      *
      * @return the user with the specified user id or null if no user with that id exists.
@@ -819,9 +829,8 @@ public class DepotUserRepository extends DepotRepository
 
         // if they have 0 sessions and they're not a subscriber, then make sure there aren't too
         // many other free accounts already created with this machine ident
-        if (!user.isSubscriber() && !user.hasBoughtCoins() && newPlayer &&
-                (playedRecentFreeAccounts(machIdent, RECENT_ACCOUNT_CUTOFF) >
-                 MAX_FREE_ACCOUNTS_PER_MACHINE)) {
+        if (newPlayer && !user.isSubscriber() && !user.hasBoughtCoins() &&
+                exceededRecentFreeAccountLimit(machIdent)) {
             return Access.NO_NEW_FREE_ACCOUNT;
         }
 
@@ -849,8 +858,7 @@ public class DepotUserRepository extends DepotRepository
         }
 
         // make sure there aren't too many other free accounts already created with this ident
-        if (newPlayer && (playedRecentFreeAccounts(machIdent, RECENT_ACCOUNT_CUTOFF) >
-                MAX_FREE_ACCOUNTS_PER_MACHINE)) {
+        if (newPlayer && exceededRecentFreeAccountLimit(machIdent)) {
             return Access.NO_NEW_FREE_ACCOUNT;
         }
 
@@ -1225,6 +1233,15 @@ public class DepotUserRepository extends DepotRepository
     }
 
     /**
+     * Has this machine ident exceeded it's limit of "recent" free accounts?
+     */
+    protected boolean exceededRecentFreeAccountLimit (String machIdent)
+    {
+        return _maxFreeAccounts >= 0 &&
+            playedRecentFreeAccounts(machIdent, RECENT_ACCOUNT_CUTOFF) >= _maxFreeAccounts;
+    }
+
+    /**
      * Returns the number of free accounts that have been played at least
      * once from this machine ident and were created vaguely recently.
      * Returns the number of free accounts that have been played at least once from this machine
@@ -1285,10 +1302,10 @@ public class DepotUserRepository extends DepotRepository
         }
     };
 
+    /** The maximum number of free accounts we'll allow, or a negative number to disable. */
+    protected int _maxFreeAccounts = -1;
+
     /** The number of days in the past from now where we no longer
      * consider an account as 'recent' */
     protected static final int RECENT_ACCOUNT_CUTOFF = -3*30;
-
-    /** The number of free accounts that can be created per machine. */
-    protected static final int MAX_FREE_ACCOUNTS_PER_MACHINE = 2;
 }
