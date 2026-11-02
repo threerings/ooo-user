@@ -935,7 +935,9 @@ public class OOOUserRepository extends UserRepository
 
     /**
      * Returns a list of all detail records that match the specified search string in their
-     * realname, username or email address.
+     * realname, username or email address. The term is quoted into the SQL unescaped, so it
+     * must not come from a user; {@link #findDetailRecords} escapes it and calls this, so the
+     * quoting here must stay as it is.
      */
     public List<DetailedUser> searchDetailRecords (final String term)
         throws PersistenceException
@@ -957,7 +959,10 @@ public class OOOUserRepository extends UserRepository
     }
 
     /**
-     * Returns a list of all detail records that exactly match the specified email.
+     * Returns a list of all detail records that exactly match the specified email. The email is
+     * quoted into the SQL unescaped, so it must not come from a user; {@link
+     * #findDetailRecordsByEmail} escapes it and calls this, so the quoting here must stay as
+     * it is.
      */
     public List<DetailedUser> searchDetailRecordsByEmail (final String email)
         throws PersistenceException
@@ -971,6 +976,31 @@ public class OOOUserRepository extends UserRepository
                 return _dtable.select(conn, newquery).toArrayList();
             }
         });
+    }
+
+    /**
+     * Returns the detail records whose username or email address contains the specified term.
+     *
+     * @param term the raw search term, escaped here; a {@code %} or {@code _} in it still acts as
+     * a wildcard.
+     * @return the matching records, newest account first.
+     */
+    public List<DetailedUser> findDetailRecords (String term)
+        throws PersistenceException
+    {
+        return searchDetailRecords(escapeQuoted(term));
+    }
+
+    /**
+     * Returns the detail records whose email address is exactly the specified one.
+     *
+     * @param email the raw email address, escaped here.
+     * @return the matching records, newest account first.
+     */
+    public List<DetailedUser> findDetailRecordsByEmail (String email)
+        throws PersistenceException
+    {
+        return searchDetailRecordsByEmail(escapeQuoted(email));
     }
 
     /**
@@ -1269,12 +1299,38 @@ public class OOOUserRepository extends UserRepository
     }
 
     /**
-     * Returns a list of all users that have ever reported the specified machine identifier.
+     * Returns a list of all users that have ever reported the specified machine identifier. The
+     * ident is quoted into the SQL unescaped, and clients report their own idents; {@link
+     * #findUsersOfMachIdent} escapes it and calls this, so the quoting here must stay as it is.
      */
     public List<Tuple<Integer,String>> getUsersOfMachIdent (String machIdent)
         throws PersistenceException
     {
         return getUsersByIdent("MACH_IDENT = '" + machIdent + "'");
+    }
+
+    /**
+     * Returns every user that has ever reported the specified machine identifier.
+     *
+     * @param machIdent the raw ident, escaped here.
+     * @return the users' ids and usernames.
+     */
+    public List<Tuple<Integer,String>> findUsersOfMachIdent (String machIdent)
+        throws PersistenceException
+    {
+        return getUsersOfMachIdent(escapeQuoted(machIdent));
+    }
+
+    /**
+     * Escapes a value for the older methods here that wrap it in single quotes themselves.
+     *
+     * @param text the raw value.
+     * @return the value as {@link JDBCUtil#escape(String)} escapes it, without its quotes.
+     */
+    protected static String escapeQuoted (String text)
+    {
+        String escaped = JDBCUtil.escape(text);
+        return escaped.substring(1, escaped.length() - 1);
     }
 
     /**
