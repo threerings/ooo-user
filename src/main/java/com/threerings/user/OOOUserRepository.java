@@ -936,7 +936,14 @@ public class OOOUserRepository extends UserRepository
 
     /**
      * Returns a list of all detail records that match the specified search string in their
-     * realname, username or email address.
+     * username or email address.
+     *
+     * <p>No index can find a term in the middle of a value, but each LIKE is matched in a
+     * subquery that names only the indexed column, so it scans that column's index rather than
+     * the whole table, and only the matching rows are then read.</p>
+     *
+     * @param term the raw search term; a {@code %} or {@code _} in it still acts as a wildcard.
+     * @return the matching records, newest account first.
      */
     public List<DetailedUser> searchDetailRecords (final String term)
         throws PersistenceException
@@ -946,14 +953,17 @@ public class OOOUserRepository extends UserRepository
                 throws PersistenceException, SQLException
             {
                 String pattern = "%" + term + "%";
-                String newquery = "left join AUXDATA " +
-                    "on userId = USER_ID where username like ? " +
+                String newquery = "join (select username as matched from users " +
+                    "where username like ?) mu on username = mu.matched " +
+                    "left join AUXDATA on userId = USER_ID " +
                     "union select userId, username, created, " +
-                    "email, birthday, gender, missive " +
-                    "from users left join AUXDATA " +
-                    "on userId = USER_ID where email like ? " +
+                    "email, birthday, gender, missive from users " +
+                    "join (select distinct email as matched from users " +
+                    "where email like ?) me on email = me.matched " +
+                    "left join AUXDATA on userId = USER_ID " +
                     "order by userId desc";
-                return _dtable.selectParams(conn, newquery, pattern, pattern).toArrayList();
+                Object[] params = { pattern, pattern };
+                return _dtable.selectParams(conn, newquery, params).toArrayList();
             }
         });
     }
@@ -970,7 +980,7 @@ public class OOOUserRepository extends UserRepository
             {
                 String newquery = "left join AUXDATA on userId = USER_ID " +
                     "where email = ? order by userId desc";
-                return _dtable.selectParams(conn, newquery, email).toArrayList();
+                return _dtable.selectParams(conn, newquery, new Object[] { email }).toArrayList();
             }
         });
     }
