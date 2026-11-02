@@ -936,8 +936,8 @@ public class OOOUserRepository extends UserRepository
     /**
      * Returns a list of all detail records that match the specified search string in their
      * realname, username or email address. The term is quoted into the SQL unescaped, so it
-     * must not come from a user; {@link #findDetailRecords} escapes it and calls this, so the
-     * quoting here must stay as it is.
+     * must not come from a user, and the whole table is read twice; {@link #findDetailRecords}
+     * avoids both.
      */
     public List<DetailedUser> searchDetailRecords (final String term)
         throws PersistenceException
@@ -980,15 +980,43 @@ public class OOOUserRepository extends UserRepository
 
     /**
      * Returns the detail records whose username or email address contains the specified term.
+     * No index can seek a term in the middle of a value, but the username and email indexes hold
+     * every value, so the matches are found by scanning those alone, which is far less to read
+     * than the table, and only the matching rows are then loaded.
      *
-     * @param term the raw search term, escaped here; a {@code %} or {@code _} in it still acts as
-     * a wildcard.
+     * @param term the raw search term; a {@code %} or {@code _} in it still acts as a wildcard.
+     * @param limit the most records returned. Each index scan stops at this many matches, so when
+     * more accounts match, which of them are returned follows the indexes' order rather than the
+     * accounts' age; a caller can ask for one more than it shows to learn that the search was cut
+     * short.
      * @return the matching records, newest account first.
      */
-    public List<DetailedUser> findDetailRecords (String term)
+    public List<DetailedUser> findDetailRecords (final String term, final int limit)
         throws PersistenceException
     {
-        return searchDetailRecords(escapeQuoted(term));
+        return execute(new Operation<List<DetailedUser>> () {
+            public List<DetailedUser> invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
+            {
+                String pattern = "%" + term + "%";
+                List<String> clauses = Lists.newArrayList();
+                List<String> usernames = loadMatching(conn, "username", pattern, limit);
+                if (!usernames.isEmpty()) {
+                    clauses.add("username in (" + JDBCUtil.escape(usernames.toArray()) + ")");
+                }
+                List<String> emails = loadMatching(conn, "email", pattern, limit);
+                if (!emails.isEmpty()) {
+                    clauses.add("email in (" + JDBCUtil.escape(emails.toArray()) + ")");
+                }
+                if (clauses.isEmpty()) {
+                    return new ArrayList<DetailedUser>();
+                }
+                String query = "left join AUXDATA on userId = USER_ID where " +
+                    StringUtil.join(clauses.toArray(new String[0]), " or ") +
+                    " order by userId desc limit " + limit;
+                return _dtable.select(conn, query).toArrayList();
+            }
+        });
     }
 
     /**
@@ -1319,6 +1347,38 @@ public class OOOUserRepository extends UserRepository
         throws PersistenceException
     {
         return getUsersOfMachIdent(escapeQuoted(machIdent));
+    }
+
+    /**
+     * Returns the distinct values of a users column that match a pattern. The query names only
+     * that column, so an index on it answers the query without reading the table.
+     *
+     * @param conn the connection to query on.
+     * @param column the column, which must be indexed for the scan to stay off the table.
+     * @param pattern the LIKE pattern.
+     * @param limit the most matching rows read.
+     * @return the matching values.
+     */
+    protected static List<String> loadMatching (
+            Connection conn, String column, String pattern, int limit)
+        throws SQLException
+    {
+        String query = "select " + column + " from users where " + column + " like ? limit ?";
+        PreparedStatement stmt = null;
+        try {
+            stmt = conn.prepareStatement(query);
+            stmt.setString(1, pattern);
+            stmt.setInt(2, limit);
+            ResultSet rs = stmt.executeQuery();
+            HashSet<String> values = new HashSet<String>();
+            while (rs.next()) {
+                values.add(rs.getString(1));
+            }
+            return new ArrayList<String>(values);
+
+        } finally {
+            JDBCUtil.close(stmt);
+        }
     }
 
     /**
