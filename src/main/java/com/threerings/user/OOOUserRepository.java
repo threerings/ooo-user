@@ -945,7 +945,24 @@ public class OOOUserRepository extends UserRepository
      * @param term the raw search term; a {@code %} or {@code _} in it still acts as a wildcard.
      * @return the matching records, newest account first.
      */
-    public List<DetailedUser> searchDetailRecords (final String term)
+    public List<DetailedUser> searchDetailRecords (String term)
+        throws PersistenceException
+    {
+        return searchDetailRecords(term, 0);
+    }
+
+    /**
+     * Returns the newest detail records that match the specified search string in their username
+     * or email address. The limit caps the records returned, not the work done: every match is
+     * still found, so that the newest of them are the ones returned. See {@link
+     * #searchDetailRecords(String)}.
+     *
+     * @param term the raw search term; a {@code %} or {@code _} in it still acts as a wildcard.
+     * @param limit the most records returned, or zero for no limit. A caller can ask for one more
+     * than it shows to learn whether there were more matches.
+     * @return the matching records, newest account first.
+     */
+    public List<DetailedUser> searchDetailRecords (final String term, final int limit)
         throws PersistenceException
     {
         return execute(new Operation<List<DetailedUser>> () {
@@ -963,6 +980,10 @@ public class OOOUserRepository extends UserRepository
                     "left join AUXDATA on userId = USER_ID " +
                     "order by userId desc";
                 Object[] params = { pattern, pattern };
+                if (limit > 0) {
+                    newquery += " limit ?";
+                    params = new Object[] { pattern, pattern, limit };
+                }
                 return _dtable.selectParams(conn, newquery, params).toArrayList();
             }
         });
