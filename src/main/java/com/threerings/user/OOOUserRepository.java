@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -935,9 +936,7 @@ public class OOOUserRepository extends UserRepository
 
     /**
      * Returns a list of all detail records that match the specified search string in their
-     * realname, username or email address. The term is quoted into the SQL unescaped, so it
-     * must not come from a user, and the whole table is read twice; {@link #findDetailRecords}
-     * avoids both.
+     * realname, username or email address.
      */
     public List<DetailedUser> searchDetailRecords (final String term)
         throws PersistenceException
@@ -946,23 +945,21 @@ public class OOOUserRepository extends UserRepository
             public List<DetailedUser> invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
             {
+                String pattern = "%" + term + "%";
                 String newquery = "left join AUXDATA " +
-                    "on userId = USER_ID where username like '%" + term +
-                    "%' union select userId, username, created, " +
+                    "on userId = USER_ID where username like ? " +
+                    "union select userId, username, created, " +
                     "email, birthday, gender, missive " +
                     "from users left join AUXDATA " +
-                    "on userId = USER_ID where email like '%" + term +
-                    "%' order by userId desc";
-                return _dtable.select(conn, newquery).toArrayList();
+                    "on userId = USER_ID where email like ? " +
+                    "order by userId desc";
+                return _dtable.selectParams(conn, newquery, pattern, pattern).toArrayList();
             }
         });
     }
 
     /**
-     * Returns a list of all detail records that exactly match the specified email. The email is
-     * quoted into the SQL unescaped, so it must not come from a user; {@link
-     * #findDetailRecordsByEmail} escapes it and calls this, so the quoting here must stay as
-     * it is.
+     * Returns a list of all detail records that exactly match the specified email.
      */
     public List<DetailedUser> searchDetailRecordsByEmail (final String email)
         throws PersistenceException
@@ -972,63 +969,10 @@ public class OOOUserRepository extends UserRepository
                 throws PersistenceException, SQLException
             {
                 String newquery = "left join AUXDATA on userId = USER_ID " +
-                    "where email = '" + email + "' order by userId desc";
-                return _dtable.select(conn, newquery).toArrayList();
+                    "where email = ? order by userId desc";
+                return _dtable.selectParams(conn, newquery, email).toArrayList();
             }
         });
-    }
-
-    /**
-     * Returns the detail records whose username or email address contains the specified term.
-     * No index can seek a term in the middle of a value, but the username and email indexes hold
-     * every value, so the matches are found by scanning those alone, which is far less to read
-     * than the table, and only the matching rows are then loaded.
-     *
-     * @param term the raw search term; a {@code %} or {@code _} in it still acts as a wildcard.
-     * @param limit the most records returned. Each index scan stops at this many matches, so when
-     * more accounts match, which of them are returned follows the indexes' order rather than the
-     * accounts' age; a caller can ask for one more than it shows to learn that the search was cut
-     * short.
-     * @return the matching records, newest account first.
-     */
-    public List<DetailedUser> findDetailRecords (final String term, final int limit)
-        throws PersistenceException
-    {
-        return execute(new Operation<List<DetailedUser>> () {
-            public List<DetailedUser> invoke (Connection conn, DatabaseLiaison liaison)
-                throws PersistenceException, SQLException
-            {
-                String pattern = "%" + term + "%";
-                List<String> clauses = Lists.newArrayList();
-                List<String> usernames = loadMatching(conn, "username", pattern, limit);
-                if (!usernames.isEmpty()) {
-                    clauses.add("username in (" + JDBCUtil.escape(usernames.toArray()) + ")");
-                }
-                List<String> emails = loadMatching(conn, "email", pattern, limit);
-                if (!emails.isEmpty()) {
-                    clauses.add("email in (" + JDBCUtil.escape(emails.toArray()) + ")");
-                }
-                if (clauses.isEmpty()) {
-                    return new ArrayList<DetailedUser>();
-                }
-                String query = "left join AUXDATA on userId = USER_ID where " +
-                    StringUtil.join(clauses.toArray(new String[0]), " or ") +
-                    " order by userId desc limit " + limit;
-                return _dtable.select(conn, query).toArrayList();
-            }
-        });
-    }
-
-    /**
-     * Returns the detail records whose email address is exactly the specified one.
-     *
-     * @param email the raw email address, escaped here.
-     * @return the matching records, newest account first.
-     */
-    public List<DetailedUser> findDetailRecordsByEmail (String email)
-        throws PersistenceException
-    {
-        return searchDetailRecordsByEmail(escapeQuoted(email));
     }
 
     /**
@@ -1327,70 +1271,12 @@ public class OOOUserRepository extends UserRepository
     }
 
     /**
-     * Returns a list of all users that have ever reported the specified machine identifier. The
-     * ident is quoted into the SQL unescaped, and clients report their own idents; {@link
-     * #findUsersOfMachIdent} escapes it and calls this, so the quoting here must stay as it is.
+     * Returns a list of all users that have ever reported the specified machine identifier.
      */
     public List<Tuple<Integer,String>> getUsersOfMachIdent (String machIdent)
         throws PersistenceException
     {
-        return getUsersByIdent("MACH_IDENT = '" + machIdent + "'");
-    }
-
-    /**
-     * Returns every user that has ever reported the specified machine identifier.
-     *
-     * @param machIdent the raw ident, escaped here.
-     * @return the users' ids and usernames.
-     */
-    public List<Tuple<Integer,String>> findUsersOfMachIdent (String machIdent)
-        throws PersistenceException
-    {
-        return getUsersOfMachIdent(escapeQuoted(machIdent));
-    }
-
-    /**
-     * Returns the distinct values of a users column that match a pattern. The query names only
-     * that column, so an index on it answers the query without reading the table.
-     *
-     * @param conn the connection to query on.
-     * @param column the column, which must be indexed for the scan to stay off the table.
-     * @param pattern the LIKE pattern.
-     * @param limit the most matching rows read.
-     * @return the matching values.
-     */
-    protected static List<String> loadMatching (
-            Connection conn, String column, String pattern, int limit)
-        throws SQLException
-    {
-        String query = "select " + column + " from users where " + column + " like ? limit ?";
-        PreparedStatement stmt = null;
-        try {
-            stmt = conn.prepareStatement(query);
-            stmt.setString(1, pattern);
-            stmt.setInt(2, limit);
-            ResultSet rs = stmt.executeQuery();
-            HashSet<String> values = new HashSet<String>();
-            while (rs.next()) {
-                values.add(rs.getString(1));
-            }
-            return new ArrayList<String>(values);
-
-        } finally {
-            JDBCUtil.close(stmt);
-        }
-    }
-
-    /**
-     * Escapes a value for the older methods here that wrap it in single quotes themselves.
-     *
-     * @param text the raw value.
-     * @return the value as {@link JDBCUtil#escape(String)} escapes it, without its quotes.
-     */
-    protected static String escapeQuoted (String text)
-    {
-        String escaped = JDBCUtil.escape(text);
-        return escaped.substring(1, escaped.length() - 1);
+        return getUsersByIdent("MACH_IDENT = ?", machIdent);
     }
 
     /**
@@ -1400,12 +1286,11 @@ public class OOOUserRepository extends UserRepository
     public List<Tuple<Integer,String>> getUsersOfMachIdents (String[] idents)
         throws PersistenceException
     {
-        String idstr = StringUtil.join(idents, "', '");
-        if (StringUtil.isBlank(idstr)) {
+        if (idents.length == 0) {
             return new ArrayList<Tuple<Integer,String>>();
-        } else {
-            return getUsersByIdent("MACH_IDENT in ('" + idstr + "')");
         }
+        String marks = StringUtil.join(Collections.nCopies(idents.length, "?").toArray(), ", ");
+        return getUsersByIdent("MACH_IDENT in (" + marks + ")", (Object[])idents);
     }
 
     /**
@@ -1705,7 +1590,7 @@ public class OOOUserRepository extends UserRepository
     /**
      * Returns a list of all users that have ever reported any of the specified machine idents.
      */
-    protected List<Tuple<Integer,String>> getUsersByIdent (String where)
+    protected List<Tuple<Integer,String>> getUsersByIdent (String where, final Object... params)
         throws PersistenceException
     {
         final String query = "select userId, username from users, USER_IDENTS " +
@@ -1715,9 +1600,12 @@ public class OOOUserRepository extends UserRepository
                 throws PersistenceException, SQLException
             {
                 List<Tuple<Integer,String>> info = Lists.newArrayList();
-                Statement stmt = conn.createStatement();
+                PreparedStatement stmt = conn.prepareStatement(query);
                 try {
-                    ResultSet rs = stmt.executeQuery(query);
+                    for (int ii = 0; ii < params.length; ii++) {
+                        stmt.setObject(ii + 1, params[ii]);
+                    }
+                    ResultSet rs = stmt.executeQuery();
                     while (rs.next()) {
                         info.add(new Tuple<Integer, String>(
                                      Integer.valueOf(rs.getInt(1)), rs.getString(2)));
